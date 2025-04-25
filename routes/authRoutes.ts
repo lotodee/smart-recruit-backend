@@ -9,7 +9,9 @@ const router = express.Router()
 // Public routes
 router.post("/login", validateRequest(loginSchema), loginUser)
 router.get("/init", initializeAdmin)
-
+router.get("/get", (req,res) => {
+    res.json("Hello")
+})
 // Protected routes
 router.get("/profile", protect, getUserProfile)
 
