@@ -6,7 +6,7 @@ import { emailTemplates } from "./emailTemplates"
 const createTransporter = async () => {
   // For development, create a test account
   const testAccount = await nodemailer.createTestAccount()
-
+console.log(testAccount)
   // Create a transporter
   return nodemailer.createTransport({
     host: process.env.EMAIL_HOST || "smtp.ethereal.email",
@@ -20,48 +20,61 @@ const createTransporter = async () => {
 }
 
 interface SendEmailParams {
-  to: string
-  candidateName: string
-  recruiterName: string
-  stage: string
-  status: string
-  reason?: string
+  to: string;
+  candidateName: string;
+  recruiterName: string;
+  stage: string;
+  status: string;
+  reason?: string;
+  recruiterEmail?: string;
 }
 
 export const sendEmail = async ({
   to,
   candidateName,
   recruiterName,
+  recruiterEmail,
   stage,
   status,
   reason,
-}: SendEmailParams): Promise<{ success: boolean; messageUrl?: string; error?: any }> => {
+}: SendEmailParams): Promise<{
+  success: boolean;
+  messageUrl?: string | undefined;
+  error?: any;
+}> => {
   try {
-    const transporter = await createTransporter()
+    const transporter = await createTransporter();
 
     // Get the email template
-    const template = emailTemplates[stage]?.[status]
+    const template = emailTemplates[stage]?.[status];
     if (!template) {
-      throw new Error(`No email template found for stage: ${stage}, status: ${status}`)
+      throw new Error(
+        `No email template found for stage: ${stage}, status: ${status}`
+      );
     }
+
+    // Customize the sender name based on the recruiter
+    const senderName = `${recruiterName}, Punch Digital Recruiter`;
+    const senderEmail = `${recruiterEmail}`;
+    const from = `"${senderName}" <${senderEmail}>`;
 
     // Send the email
     const info = await transporter.sendMail({
-      from: process.env.EMAIL_FROM || '"SmartRecruit" <noreply@smartrecruit.com>',
+      from,
       to,
       subject: template.subject,
       text: template.body({ candidateName, recruiterName, reason }),
-    })
+    });
 
-    console.log(`Email sent: ${info.messageId}`)
+    console.log(`Email sent: ${info.messageId}`);
 
     // Get URL for Ethereal Email (for development)
-    const messageUrl = nodemailer.getTestMessageUrl(info)
-    console.log(`Preview URL: ${messageUrl}`)
+    const messageUrl = nodemailer.getTestMessageUrl(info);
+    console.log(`Preview URL: ${messageUrl}`);
 
-    return { success: true, messageUrl }
+    return { success: true, messageUrl: messageUrl || undefined };
   } catch (error) {
-    console.error("Error sending email:", error)
-    return { success: false, error }
+    console.error("Error sending email:", error);
+    return { success: false, error };
   }
-}
+};

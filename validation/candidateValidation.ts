@@ -13,16 +13,22 @@ export const createCandidateSchema = Joi.object({
     "string.email": "Please enter a valid email",
     "any.required": "Email is required",
   }),
-  test_link: Joi.string().uri().required().messages({
-    "string.empty": "Test link is required",
-    "string.uri": "Please enter a valid URL",
-    "any.required": "Test link is required",
-  }),
+  test_link: Joi.string()
+    .trim()
+    .pattern(/^https?:\/\/.+$/)
+    .required()
+    .messages({
+      "string.empty": "Test link is required",
+      "string.pattern.base": "This is not a valid test link",
+      "any.required": "Test link is required",
+    }),
   stage: Joi.string().valid("Stage 1", "Stage 2", "Final"),
   status: Joi.string().valid("Pending", "Passed", "Failed"),
   notes: Joi.string().allow("", null),
-  skills: Joi.array().items(Joi.string()),
-})
+  skills: Joi.array().items(Joi.string()).required().messages({
+    "items.length < 0" : "Please input a skill"
+  }),
+});
 
 /**
  * Validation schema for updating a candidate
@@ -50,5 +56,9 @@ export const sendEmailSchema = Joi.object({
     "string.empty": "Recruiter name is required",
     "any.required": "Recruiter name is required",
   }),
+  recruiterEmail: Joi.string().required().messages({
+    "string.empty": "Recruiter name is required",
+    "any.required": "Recruiter name is required",
+  }),
   reason: Joi.string().allow("", null),
-})
+});

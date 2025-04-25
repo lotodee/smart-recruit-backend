@@ -2,13 +2,14 @@ import type { Request, Response } from "express"
 import asyncHandler from "express-async-handler"
 import Candidate, { type ICandidate } from "../models/candidateModel"
 import { sendEmail } from "../utils/emailService"
-
+import { UpdateQuery } from "mongoose";
 /**
  * @desc    Get all candidates
  * @route   GET /api/candidates
  * @access  Private
  */
 export const getCandidates = asyncHandler(async (req: Request, res: Response) => {
+  console.log("hit the endpoint")
   const candidates = await Candidate.find({}).sort({ createdAt: -1 })
 
   res.json({
@@ -45,6 +46,17 @@ export const getCandidateById = asyncHandler(async (req: Request, res: Response)
 export const createCandidate = asyncHandler(async (req: Request, res: Response) => {
   const { name, email, test_link, stage, status, notes, skills } = req.body
 
+  
+//   const existingUser = await Candidate.findOne({
+//     email: { $regex: new RegExp(`^${email}$`, "i") },
+//   }); 
+
+//   if (existingUser) {
+//  res.status(403).json({
+//       success: false,
+//       message: "Candidate exists — email is not unique",
+//     });
+//   }
   const candidate = await Candidate.create({
     name,
     email,
@@ -131,8 +143,11 @@ export const searchCandidates = asyncHandler(async (req: Request, res: Response)
  * @access  Private
  */
 export const sendStatusEmail = asyncHandler(async (req: Request, res: Response) => {
-  const { recruiterName, reason } = req.body
+  
+  console.log(req.body)
+  const { recruiterName,recruiterEmail, reason } = req.body;
 
+  
   const candidate = await Candidate.findById(req.params.id)
 
   if (!candidate) {
@@ -145,10 +160,11 @@ export const sendStatusEmail = asyncHandler(async (req: Request, res: Response) 
     to: candidate.email,
     candidateName: candidate.name,
     recruiterName,
+    recruiterEmail,
     stage: candidate.stage,
     status: candidate.status,
     reason,
-  })
+  });
 
   if (!emailResult.success) {
     res.status(500)
@@ -160,14 +176,15 @@ export const sendStatusEmail = asyncHandler(async (req: Request, res: Response) 
     date: new Date(),
     type: "status_update",
     recruiterName,
+    recruiterEmail,
     status: candidate.status,
     stage: candidate.stage,
     reason,
   }
 
-  const update: Partial<ICandidate> = {
+  const update: UpdateQuery<ICandidate> = {
     $push: { emailHistory: emailHistoryEntry },
-  }
+  } as any
 
   if (candidate.status === "Failed" && reason) {
     update.failureReason = reason

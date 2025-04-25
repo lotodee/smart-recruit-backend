@@ -3,7 +3,8 @@ import cors from "cors"
 import connectDB from "./db/connect"
 import authRoutes from "./routes/authRoutes"
 import candidateRoutes from "./routes/candidateRoutes"
-
+import dotenv from "dotenv";
+dotenv.config();
 // Initialize express app
 const app = express()
 
@@ -30,7 +31,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 })
 
 // Port setup
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 5000
 
 // Only start server if not in serverless environment
 if (process.env.NODE_ENV !== "production") {

@@ -1,15 +1,20 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const connectDB = async (): Promise<mongoose.Connection> => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI || "")
+    const DB_URL = process.env.MONGODB_URI!;
+ 
 
-    console.log(`MongoDB Connected: ${conn.connection.host}`)
-    return conn.connection
+    const conn = await mongoose.connect(DB_URL); // ← No options needed in Mongoose 6+
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    return conn.connection;
   } catch (error: any) {
-    console.error(`Error: ${error.message}`)
-    process.exit(1)
+    console.error(`MongoDB connection error: ${error.message}`);
+    process.exit(1);
   }
-}
+};
 
-export default connectDB
+export default connectDB;

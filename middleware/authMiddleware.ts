@@ -28,7 +28,7 @@ export const protect = asyncHandler(async (req: Request, res: Response, next: Ne
       const decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback_secret_do_not_use_in_production")
 
       // Get user from the token (exclude password)
-      req.user = await User.findById((decoded as any).id).select("-password")
+      req.user = await User.findById((decoded as any).username).select("-password")
 
       next()
     } catch (error) {

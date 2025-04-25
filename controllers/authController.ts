@@ -32,7 +32,7 @@ export const loginUser = asyncHandler(async (req: Request, res: Response) => {
         username: user.username,
         isAdmin: user.isAdmin,
       },
-      token: generateToken(user._id),
+      token: generateToken(user.username),
     })
   } else {
     res.status(401)
@@ -57,7 +57,7 @@ export const initializeAdmin = asyncHandler(async (req: Request, res: Response) 
       isAdmin: true,
     })
 
-    return res.status(201).json({
+   res.status(201).json({
       success: true,
       message: "Admin user created successfully",
     })

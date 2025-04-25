@@ -1,12 +1,13 @@
 import mongoose, { type Document, Schema } from "mongoose"
 
 export interface EmailHistory {
-  date: Date
-  type: string
-  recruiterName: string
-  status: string
-  stage: string
-  reason?: string
+  date: Date;
+  type: string;
+  recruiterName: string;
+  recruiterEmail?: string;
+  status: string;
+  stage: string;
+  reason?: string;
 }
 
 export interface ICandidate extends Document {
@@ -32,6 +33,7 @@ const candidateSchema = new Schema<ICandidate>(
     },
     email: {
       type: String,
+      // unique:true,
       required: [true, "Email is required"],
       trim: true,
       lowercase: true,
@@ -41,7 +43,10 @@ const candidateSchema = new Schema<ICandidate>(
       type: String,
       required: [true, "Test link is required"],
       trim: true,
-      match: [/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/, "Please enter a valid URL"],
+      match: [
+        /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/,
+        "Please enter a valid URL",
+      ],
     },
     stage: {
       type: String,
@@ -79,6 +84,10 @@ const candidateSchema = new Schema<ICandidate>(
           type: String,
           required: true,
         },
+        recruiterEmail: {
+          type: String,
+          required: true,
+        },
         status: {
           type: String,
           required: true,
@@ -95,8 +104,8 @@ const candidateSchema = new Schema<ICandidate>(
   },
   {
     timestamps: true,
-  },
-)
+  }
+);
 
 // Create indexes for better query performance
 candidateSchema.index({ name: "text", email: "text" })
