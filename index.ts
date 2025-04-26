@@ -16,8 +16,8 @@ app.use(cors())
 connectDB()
 
 // Routes
-app.use("/api/auth", authRoutes)
-app.use("/api/candidates", candidateRoutes)
+app.use("/api/v1/auth", authRoutes)
+app.use("/api/v1/candidates", candidateRoutes)
 
 // Default route
 app.get("/api", (req: Request, res: Response) => {
